@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid()) @db.VarChar(36)
+  username  String     @db.VarChar(50)
+  email     String     @unique @db.VarChar(250)
+  password  String     @db.VarChar(72)
+  avatar    String?    @db.VarChar(48)
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  token     Token?
+  todoLists TodoList[]
+
+  @@map("users")
+}
+
+model Token {
+  userId    String   @id @map("user_id") @db.VarChar(36)
+  value     String   @db.VarChar(72)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("tokens")
+}
+
+model TodoList {
+  id          String     @id @default(uuid()) @db.VarChar(36)
+  userId      String     @map("user_id") @db.VarChar(36)
+  title       String     @db.VarChar(50)
+  description String?    @db.VarChar(300)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  todoItems   TodoItem[]
+
+  @@map("todo_lists")
+}
+
+model TodoItem {
+  id          String   @id @default(uuid()) @db.VarChar(36)
+  todoListId  String   @map("todo_list_id") @db.VarChar(36)
+  title       String   @db.VarChar(50)
+  description String?  @db.VarChar(300)
+  priority    Priority @default(DEFAULT)
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  todoList    TodoList @relation(fields: [todoListId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("todo_items")
+}
+
+enum Priority {
+  DEFAULT
+  LOW
+  MEDIUM
+  HIGH
+}
