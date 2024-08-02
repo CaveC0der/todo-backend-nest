@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { TokensService } from 'src/tokens';
 import { UsersService } from 'src/users';
 import { LoginDto, SignupDto } from './dtos';
@@ -34,7 +34,8 @@ export class AuthService {
     const user = await this.usersService.getWithTokenOrThrow({ email });
 
     if (!(await compare(password, user.password))) {
-      throw new BadRequestException(['invalid password']);
+      Logger.log(`user.email(${email}): invalid password`, `${AuthService.name}.login`);
+      throw new BadRequestException('Invalid password');
     }
 
     const tokens = await this.tokensService.sign({ id: user.id });
@@ -52,7 +53,8 @@ export class AuthService {
     const user = await this.usersService.getWithTokenOrThrow({ id });
 
     if (!user.token || !(await compare(token, user.token.value))) {
-      throw new UnauthorizedException();
+      Logger.log(`user.id(${id}): invalid refresh token`, `${AuthService.name}.refresh`);
+      throw new UnauthorizedException('Invalid refresh token');
     }
 
     const tokens = await this.tokensService.sign({ id: user.id });

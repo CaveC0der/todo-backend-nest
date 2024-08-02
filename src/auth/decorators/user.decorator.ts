@@ -2,6 +2,7 @@ import {
   createParamDecorator,
   ExecutionContext,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { Request } from 'express';
 
@@ -13,7 +14,8 @@ export const User = createParamDecorator(
     const request = ctx.switchToHttp().getRequest<Request>();
 
     if (!request.user) {
-      throw new InternalServerErrorException();
+      Logger.error('request.user is undefined', User.name);
+      throw new InternalServerErrorException('User credentials are undefined');
     }
 
     return data ? request.user[data] : request.user;

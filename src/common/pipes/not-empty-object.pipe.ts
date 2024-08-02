@@ -1,12 +1,13 @@
-import { BadRequestException, PipeTransform } from '@nestjs/common';
+import { BadRequestException, Logger, PipeTransform, ArgumentMetadata } from '@nestjs/common';
 import { isNotEmptyObject } from 'class-validator';
 
 export default class NotEmptyObjectPipe implements PipeTransform<object> {
-  transform(value: object): object {
+  transform(value: object, metadata: ArgumentMetadata): object {
     if (typeof value === 'object' && isNotEmptyObject(value)) {
       return value;
     }
 
-    throw new BadRequestException('object should not be empty');
+    Logger.debug(`Object (${metadata.type}) is empty`, NotEmptyObjectPipe.name);
+    throw new BadRequestException(`Object (${metadata.type}) should not be empty`);
   }
 }

@@ -18,7 +18,7 @@ export const EnvSchema = z.object({
   COOKIE_MAX_AGE: z.coerce.number(),
 
   SERVE_STATIC_FOLDER: z.string(),
-  SERVE_STATIC_PREFIX: z.string(),
+  SERVE_STATIC_PREFIX: z.string().startsWith('/'),
 });
 
 export type TEnvSchema = z.infer<typeof EnvSchema>;

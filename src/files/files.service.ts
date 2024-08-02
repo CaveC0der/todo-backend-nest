@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { AppConfigService } from '../app-config';
 import { existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
@@ -25,7 +25,8 @@ export class FilesService {
       await writeFile(join(this.serveStaticPath, filename), file.buffer);
       return filename;
     } catch (e) {
-      throw new InternalServerErrorException(e.message);
+      Logger.error(e, `${FilesService.name}.save`);
+      throw new InternalServerErrorException('Failed to save file');
     }
   }
 
@@ -33,7 +34,8 @@ export class FilesService {
     try {
       await unlink(join(this.serveStaticPath, filename));
     } catch (e) {
-      throw new InternalServerErrorException(e.message);
+      Logger.error(e, `${FilesService.name}.delete`);
+      throw new InternalServerErrorException('Failed to delete file');
     }
   }
 }

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   InternalServerErrorException,
+  Logger,
   Patch,
   Post,
   Res,
@@ -56,7 +57,8 @@ export class AuthController {
   @Patch('refresh')
   async refresh(@User() u: Express.User, @Res({ passthrough: true }) res: Response) {
     if (!u.refreshToken) {
-      throw new InternalServerErrorException();
+      Logger.error('user.refreshToken is undefined', `${AuthController.name}.refresh`);
+      throw new InternalServerErrorException('Refresh token is undefined');
     }
 
     const { user, accessToken, refreshToken } = await this.authService.refresh(
